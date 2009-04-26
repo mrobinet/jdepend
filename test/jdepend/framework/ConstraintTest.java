@@ -92,6 +92,7 @@ public class ConstraintTest extends JDependTestCase {
         text.dependsUpon(framework);
         xml.dependsUpon(framework);
         xml.dependsUpon(text);
+        xml.dependsUpon(framework);
         swing.dependsUpon(framework);
         xml.dependsUpon(framework);
         framework.dependsUpon(jdependframeworkp2);

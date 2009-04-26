@@ -135,6 +135,7 @@ public class ExampleTest extends TestCase {
         text.dependsUpon(framework);
         xml.dependsUpon(framework);
         xml.dependsUpon(text);
+        xml.dependsUpon(framework);
         swing.dependsUpon(framework);
         framework.dependsUpon(jdependframeworkp2);
         framework.dependsUpon(jdependframeworkp3);
