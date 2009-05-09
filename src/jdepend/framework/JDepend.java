@@ -1,7 +1,11 @@
 package jdepend.framework;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * The <code>JDepend</code> class analyzes directories of Java class files 
@@ -74,7 +78,7 @@ import java.util.*;
  * <pre>
  * JDepend jdepend = new JDepend();
  * jdepend.addDirectory(&quot;/path/to/classes&quot;);
- * Collection packages = jdepend.analyze();
+ * Collection&lt;JavaPackage&gt; packages = jdepend.analyze();
  * 
  * Iterator i = packages.iterator();
  * while (i.hasNext()) {
@@ -102,12 +106,12 @@ import java.util.*;
 
 public class JDepend {
 
-    private HashMap packages;
+    private Map<String, JavaPackage> packages;
     private FileManager fileManager;
     private PackageFilter filter;
     private ClassFileParser parser;
     private JavaClassBuilder builder;
-    private Collection components;
+    private Collection<String> components;
 
     public JDepend() {
         this(new PackageFilter());
@@ -117,7 +121,7 @@ public class JDepend {
 
         setFilter(filter);
 
-        this.packages = new HashMap();
+        this.packages = new HashMap<String, JavaPackage>();
         this.fileManager = new FileManager();
 
         this.parser = new ClassFileParser(filter);
@@ -134,12 +138,12 @@ public class JDepend {
      * 
      * @return Collection of analyzed packages.
      */
-    public Collection analyze() {
+    public Collection<JavaPackage> analyze() {
 
-        Collection classes = builder.build();
+        Collection<JavaClass> classes = builder.build();
         
-        for (Iterator i = classes.iterator(); i.hasNext();) {
-            analyzeClass((JavaClass)i.next());
+        for (JavaClass clazz : classes) {
+            analyzeClass(clazz);
         }
 
         return getPackages();
@@ -162,7 +166,7 @@ public class JDepend {
      * @param components Comma-separated list of components.
      */
     public void setComponents(String components) {
-        this.components = new ArrayList();
+        this.components = new ArrayList<String>();
         StringTokenizer st = new StringTokenizer(components, ",");
         while (st.hasMoreTokens()) {
             String component = st.nextToken();
@@ -185,7 +189,7 @@ public class JDepend {
      * 
      * @return Collection of analyzed packages.
      */
-    public Collection getPackages() {
+    public Collection<JavaPackage> getPackages() {
         return packages.values();
     }
 
@@ -196,7 +200,7 @@ public class JDepend {
      * @return Package, or <code>null</code> if the package was not analyzed.
      */
     public JavaPackage getPackage(String name) {
-        return (JavaPackage)packages.get(name);
+        return packages.get(name);
     }
 
     /**
@@ -223,8 +227,7 @@ public class JDepend {
      * @return <code>true</code> if one or more dependency cycles exist.
      */
     public boolean containsCycles() {
-        for (Iterator i = getPackages().iterator(); i.hasNext();) {
-            JavaPackage jPackage = (JavaPackage)i.next();
+        for (JavaPackage jPackage : getPackages()) {
             if (jPackage.containsCycle()) {
                 return true;
             }
@@ -237,6 +240,7 @@ public class JDepend {
      * Indicates whether the analyzed packages match the specified 
      * dependency constraint.
      * 
+     * @param constraint the constraint to check
      * @return <code>true</code> if the packages match the dependency
      *         constraint
      */
@@ -261,10 +265,10 @@ public class JDepend {
      * @return Added Java package.
      */
     public JavaPackage addPackage(String name) {
-        name = toComponent(name);
-        JavaPackage pkg = (JavaPackage)packages.get(name);
+        String n = toComponent(name);
+        JavaPackage pkg = packages.get(n);
         if (pkg == null) {
-            pkg = new JavaPackage(name);
+            pkg = new JavaPackage(n);
             addPackage(pkg);
         }
 
@@ -273,8 +277,7 @@ public class JDepend {
 
     private String toComponent(String packageName) {
         if (components != null) {
-            for (Iterator i = components.iterator(); i.hasNext();) {
-                String component = (String)i.next();
+            for (String component : components) {
                 if (packageName.startsWith(component + ".")) {
                     return component;
                 }
@@ -287,11 +290,10 @@ public class JDepend {
      * Adds the specified collection of packages to the collection 
      * of analyzed packages.
      * 
-     * @param packages Collection of packages.
+     * @param pkgs Collection of packages.
      */
-    public void addPackages(Collection packages) {
-        for (Iterator i = packages.iterator(); i.hasNext();) {
-            JavaPackage pkg = (JavaPackage)i.next();
+    public void addPackages(Collection<JavaPackage> pkgs) {
+        for (JavaPackage pkg : pkgs) {
             addPackage(pkg);
         }
     }
@@ -334,9 +336,8 @@ public class JDepend {
         JavaPackage clazzPackage = addPackage(packageName);
         clazzPackage.addClass(clazz);
 
-        Collection imports = clazz.getImportedPackages();
-        for (Iterator i = imports.iterator(); i.hasNext();) {
-            JavaPackage importedPackage = (JavaPackage)i.next();
+        Collection<JavaPackage> imports = clazz.getImportedPackages();
+        for (JavaPackage importedPackage : imports) {
             importedPackage = addPackage(importedPackage.getName());
             clazzPackage.dependsUpon(importedPackage);
         }

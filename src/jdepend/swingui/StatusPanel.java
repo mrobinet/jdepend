@@ -16,6 +16,8 @@ import javax.swing.BoxLayout;
 
 public class StatusPanel extends JPanel {
 
+    private static final long serialVersionUID = -1;
+    
     /**
      * Constructs a <code>StatusPanel</code>.
      */

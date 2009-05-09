@@ -1,8 +1,7 @@
 package jdepend.swingui;
 
-import java.util.*;
-
-import jdepend.framework.*;
+import java.util.Collection;
+import jdepend.framework.JavaPackage;
 
 /**
  * The <code>EfferentNode</code> class is a <code>PackageNode</code> for an
@@ -43,7 +42,7 @@ public class EfferentNode extends PackageNode {
      * 
      * @return Collection of coupled packages.
      */
-    protected Collection getCoupledPackages() {
+    protected Collection<JavaPackage> getCoupledPackages() {
         return getPackage().getEfferents();
     }
 
@@ -58,6 +57,7 @@ public class EfferentNode extends PackageNode {
      * @return <code>true</code> to display the package; <code>false</code>
      *         otherwise.
      */
+    @Override
     public boolean isChild(JavaPackage jPackage) {
         if (getParent() != null) {
             return true;
@@ -74,6 +74,7 @@ public class EfferentNode extends PackageNode {
      * 
      * @return Node label.
      */
+    @Override
     public String toString() {
         if (getParent() == null) {
             return "Depends Upon - Efferent Dependencies" + " ("

@@ -16,11 +16,13 @@ public class FilterTest extends JDependTestCase {
         super(name);
     }
 
+    @Override
     protected void setUp() {
         super.setUp();
         System.setProperty("user.home", getTestDataDir());
     }
 
+    @Override
     protected void tearDown() {
         super.tearDown();
     }
@@ -42,7 +44,7 @@ public class FilterTest extends JDependTestCase {
 
     public void testCollection() throws IOException {
 
-        Collection filters = new ArrayList();
+        Collection<String> filters = new ArrayList<String>();
         filters.add("java.*");
         filters.add("javax.*");
         filters.add("sun.*");
@@ -55,7 +57,7 @@ public class FilterTest extends JDependTestCase {
     }
 
     public void testCollectionSubset() {
-        Collection filters = new ArrayList();
+        Collection<String> filters = new ArrayList<String>();
         filters.add("com.xyz");
         PackageFilter filter = new PackageFilter(filters);
         assertEquals(1, filter.getFilters().size());

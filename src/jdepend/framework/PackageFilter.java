@@ -1,7 +1,8 @@
 package jdepend.framework;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * The <code>PackageFilter</code> class is used to filter imported 
@@ -17,7 +18,7 @@ import java.util.*;
 
 public class PackageFilter {
 
-    private Collection filtered;
+    private Collection<String> filtered;
 
     /**
      * Constructs a <code>PackageFilter</code> instance containing 
@@ -25,7 +26,7 @@ public class PackageFilter {
      * if it exists.
      */
     public PackageFilter() {
-        this(new ArrayList());
+        this(new ArrayList<String>());
         PropertyConfigurator config = new PropertyConfigurator();
         addPackages(config.getFilteredPackages());
     }
@@ -37,7 +38,7 @@ public class PackageFilter {
      * @param f Property file.
      */
     public PackageFilter(File f) {
-        this(new ArrayList());
+        this(new ArrayList<String>());
         PropertyConfigurator config = new PropertyConfigurator(f);
         addPackages(config.getFilteredPackages());
     }
@@ -48,8 +49,8 @@ public class PackageFilter {
      * 
      * @param packageNames Package names to filter.
      */
-    public PackageFilter(Collection packageNames) {
-        filtered = new ArrayList();
+    public PackageFilter(Collection<String> packageNames) {
+        filtered = new ArrayList<String>();
         addPackages(packageNames);
     }
 
@@ -58,7 +59,7 @@ public class PackageFilter {
      * 
      * @return Filtered package names.
      */
-    public Collection getFilters() {
+    public Collection<String> getFilters() {
         return filtered;
     }
 
@@ -70,8 +71,7 @@ public class PackageFilter {
      *         <code>false</code> otherwise.
      */
     public boolean accept(String packageName) {
-        for (Iterator i = getFilters().iterator(); i.hasNext();) {
-            String nameToFilter = (String)i.next();
+        for (String nameToFilter : getFilters()) {
             if (packageName.startsWith(nameToFilter)) {
                 return false;
             }
@@ -80,19 +80,20 @@ public class PackageFilter {
         return true;
     }
 
-    public void addPackages(Collection packageNames) {
-        for (Iterator i = packageNames.iterator(); i.hasNext();) {
-            addPackage((String)i.next());
+    public void addPackages(Collection<String> packageNames) {
+        for (String packageName : packageNames) {
+            addPackage(packageName);
         }
     }
 
     public void addPackage(String packageName) {
+        String pkgName = packageName;
         if (packageName.endsWith("*")) {
-            packageName = packageName.substring(0, packageName.length() - 1);
+            pkgName = packageName.substring(0, packageName.length() - 1);
         }
 
-        if (packageName.length() > 0) {
-            getFilters().add(packageName);
+        if (pkgName.length() > 0) {
+            getFilters().add(pkgName);
         }
     }
 }

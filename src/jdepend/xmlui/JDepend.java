@@ -1,10 +1,9 @@
 package jdepend.xmlui;
 
-import java.io.*;
-import java.util.*;
-
+import java.io.PrintWriter;
 import java.text.NumberFormat;
-
+import java.util.Collection;
+import java.util.Locale;
 import jdepend.framework.JavaClass;
 import jdepend.framework.JavaPackage;
 
@@ -18,6 +17,8 @@ import jdepend.framework.JavaPackage;
  */
 
 public class JDepend extends jdepend.textui.JDepend {
+
+    public static final String END_PACKAGE_TAG = "</Package>";
 
     /**
      * Constructs a <code>JDepend</code> instance using standard output.
@@ -38,39 +39,47 @@ public class JDepend extends jdepend.textui.JDepend {
         formatter.setMaximumFractionDigits(2);
     }
 
+    @Override
     protected void printHeader() {
         getWriter().println("<?xml version=\"1.0\"?>");
         getWriter().println("<JDepend>");
     }
 
+    @Override
     protected void printFooter() {
         getWriter().println("</JDepend>");
     }
 
+    @Override
     protected void printPackagesHeader() {
         getWriter().println(tab() + "<Packages>");
     }
 
+    @Override
     protected void printPackagesFooter() {
         getWriter().println(tab() + "</Packages>");
     }
 
+    @Override
     protected void printPackageHeader(JavaPackage jPackage) {
         printSectionBreak();
         getWriter().println(
                 tab(2) + "<Package name=\"" + jPackage.getName() + "\">");
     }
 
+    @Override
     protected void printPackageFooter(JavaPackage jPackage) {
-        getWriter().println(tab(2) + "</Package>");
+        getWriter().println(tab(2) + END_PACKAGE_TAG);
     }
 
+    @Override
     protected void printNoStats() {
         getWriter().println(
                 tab(3) + "<error>No stats available: "
                         + "package referenced, but not analyzed.</error>");
     }
 
+    @Override
     protected void printStatistics(JavaPackage jPackage) {
         getWriter().println(tab(3) + "<Stats>");
         getWriter().println(
@@ -99,6 +108,7 @@ public class JDepend extends jdepend.textui.JDepend {
         getWriter().println(tab(3) + "</Stats>");
     }
 
+    @Override
     protected void printClassName(JavaClass jClass) {
         getWriter().println(
                 tab(4) + "<Class sourceFile=\"" + jClass.getSourceFile()
@@ -107,85 +117,104 @@ public class JDepend extends jdepend.textui.JDepend {
         getWriter().println(tab(4) + "</Class>");
     }
 
+    @Override
     protected void printPackageName(JavaPackage jPackage) {
         getWriter().println(
-                tab(4) + "<Package>" + jPackage.getName() + "</Package>");
+                tab(4) + "<Package>" + jPackage.getName() + END_PACKAGE_TAG);
     }
 
+    @Override
     protected void printAbstractClassesHeader() {
         getWriter().println(tab(3) + "<AbstractClasses>");
     }
 
+    @Override
     protected void printAbstractClassesFooter() {
         getWriter().println(tab(3) + "</AbstractClasses>");
     }
 
+    @Override
     protected void printConcreteClassesHeader() {
         getWriter().println(tab(3) + "<ConcreteClasses>");
     }
 
+    @Override
     protected void printConcreteClassesFooter() {
         getWriter().println(tab(3) + "</ConcreteClasses>");
     }
 
+    @Override
     protected void printEfferentsHeader() {
         getWriter().println(tab(3) + "<DependsUpon>");
     }
 
+    @Override
     protected void printEfferentsFooter() {
         getWriter().println(tab(3) + "</DependsUpon>");
     }
 
+    @Override
     protected void printEfferentsError() {
         // do nothing
     }
 
+    @Override
     protected void printAfferentsHeader() {
         getWriter().println(tab(3) + "<UsedBy>");
     }
 
+    @Override
     protected void printAfferentsFooter() {
         getWriter().println(tab(3) + "</UsedBy>");
     }
 
+    @Override
     protected void printAfferentsError() {
         // do nothing
     }
 
+    @Override
     protected void printCyclesHeader() {
         printSectionBreak();
         getWriter().println(tab() + "<Cycles>");
     }
 
+    @Override
     protected void printCyclesFooter() {
         getWriter().println(tab() + "</Cycles>");
     }
 
+    @Override
     protected void printCycleHeader(JavaPackage jPackage) {
         getWriter().println(
                 tab(2) + "<Package Name=\"" + jPackage.getName() + "\">");
     }
 
+    @Override
     protected void printCycleFooter() {
-        getWriter().println(tab(2) + "</Package>");
+        getWriter().println(tab(2) + END_PACKAGE_TAG);
         printSectionBreak();
     }
 
+    @Override
     protected void printCycleTarget(JavaPackage jPackage) {
         printCycleContributor(jPackage);
     }
 
+    @Override
     protected void printCycleContributor(JavaPackage jPackage) {
         getWriter().println(
-                tab(3) + "<Package>" + jPackage.getName() + "</Package>");
+                tab(3) + "<Package>" + jPackage.getName() + END_PACKAGE_TAG);
     }
 
-    protected void printSummary(Collection packages) {
+    @Override
+    protected void printSummary(Collection<JavaPackage> packages) {
         // do nothing
     }
 
     /**
      * Main.
+     * @param args arguments
      */
     public static void main(String args[]) {
         new JDepend().instanceMain(args);

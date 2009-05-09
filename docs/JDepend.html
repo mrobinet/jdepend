@@ -986,7 +986,7 @@ filters specified in an existing
 <div>
 <blockquote>
 <pre>
-Collection filters = new ArrayList();
+Collection&gt;String&lt; filters = new ArrayList();
 filters.add("java.*");
 filters.add("javax.*");
 PackageFilter filter = new PackageFilter(filters);
@@ -1213,7 +1213,7 @@ public class CycleTest extends TestCase {
      */
     public void testAllPackages() {
     
-        Collection packages = jdepend.analyze();
+        Collection&lt;JavaPackage&gt; packages = jdepend.analyze();
         
         assertEquals("Cycles exist", 
                      false, jdepend.containsCycles());
@@ -1286,7 +1286,7 @@ public class DistanceTest extends TestCase {
         double ideal = 0.0;
         double tolerance = 0.5;  // project-dependent
         
-        Collection packages = jdepend.analyze();
+        Collection&lt;JavaPackage&gt; packages = jdepend.analyze();
         
         Iterator iter = packages.iterator();
         while (iter.hasNext()) {

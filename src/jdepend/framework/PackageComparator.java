@@ -11,34 +11,31 @@ import java.util.Comparator;
  * @author Clarkware Consulting, Inc.
  */
 
-public class PackageComparator implements Comparator {
+public class PackageComparator implements Comparator<JavaPackage> {
 
-    private PackageComparator byWhat;
+    private PackageComparator by;
 
-    private static PackageComparator byName;
+    private static PackageComparator byNameComparator;
     static {
-        byName = new PackageComparator();
+        byNameComparator = new PackageComparator();
     }
 
     public static PackageComparator byName() {
-        return byName;
+        return byNameComparator;
     }
 
     private PackageComparator() {
     }
 
     public PackageComparator(PackageComparator byWhat) {
-        this.byWhat = byWhat;
+        this.by = byWhat;
     }
 
     public PackageComparator byWhat() {
-        return byWhat;
+        return by;
     }
 
-    public int compare(Object p1, Object p2) {
-
-        JavaPackage a = (JavaPackage) p1;
-        JavaPackage b = (JavaPackage) p2;
+    public int compare(JavaPackage a, JavaPackage b) {
 
         if (byWhat() == byName()) {
             return a.getName().compareTo(b.getName());

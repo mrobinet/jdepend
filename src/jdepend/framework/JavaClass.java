@@ -1,6 +1,9 @@
 package jdepend.framework;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The <code>JavaClass</code> class represents a Java 
@@ -14,16 +17,16 @@ public class JavaClass {
 
     private String className;
     private String packageName;
-    private boolean isAbstract;
-    private HashMap imports;
+    private boolean isAbst;
+    private Map<String, JavaPackage> imports;
     private String sourceFile;
 
 
     public JavaClass(String name) {
         className = name;
         packageName = "default";
-        isAbstract = false;
-        imports = new HashMap();
+        isAbst = false;
+        imports = new HashMap<String, JavaPackage>();
         sourceFile = "Unknown";
     }
 
@@ -51,7 +54,7 @@ public class JavaClass {
         return sourceFile;
     }
 
-    public Collection getImportedPackages() {
+    public Collection<JavaPackage> getImportedPackages() {
         return imports.values();
     }
 
@@ -62,13 +65,14 @@ public class JavaClass {
     }
 
     public boolean isAbstract() {
-        return isAbstract;
+        return isAbst;
     }
 
     public void isAbstract(boolean isAbstract) {
-        this.isAbstract = isAbstract;
+        isAbst = isAbstract;
     }
 
+    @Override
     public boolean equals(Object other) {
 
         if (other instanceof JavaClass) {
@@ -79,16 +83,14 @@ public class JavaClass {
         return false;
     }
 
+    @Override
     public int hashCode() {
         return getName().hashCode();
     }
 
-    public static class ClassComparator implements Comparator {
+    public static class ClassComparator implements Comparator<JavaClass> {
 
-        public int compare(Object a, Object b) {
-            JavaClass c1 = (JavaClass) a;
-            JavaClass c2 = (JavaClass) b;
-
+        public int compare(JavaClass c1, JavaClass c2) {
             return c1.getName().compareTo(c2.getName());
         }
     }

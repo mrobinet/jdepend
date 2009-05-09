@@ -13,6 +13,8 @@ import javax.swing.*;
 
 class AboutDialog extends JDialog {
 
+    private static final long serialVersionUID = -1;
+
     /**
      * Constructs an <code>AboutDialog</code> with the specified parent frame.
      * 
@@ -30,6 +32,7 @@ class AboutDialog extends JDialog {
 
         addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 dispose();
             }

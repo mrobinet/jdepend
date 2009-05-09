@@ -21,12 +21,12 @@ public class CollectAllCyclesTest extends JDependTestCase {
 				
 		a.dependsUpon(b);
 						
-		List aCycles = new ArrayList();
+		List<JavaPackage> aCycles = new ArrayList<JavaPackage>();
 		assertEquals(false, a.containsCycle());
 		assertEquals(false, a.collectAllCycles(aCycles));
 		assertListEquals(aCycles, new String[] {});	
 	
-		List bCycles = new ArrayList();
+		List<JavaPackage> bCycles = new ArrayList<JavaPackage>();
 		assertEquals(false, b.containsCycle());
 		assertEquals(false, b.collectAllCycles(bCycles));
 		assertListEquals(bCycles, new String[] {});	
@@ -40,12 +40,12 @@ public class CollectAllCyclesTest extends JDependTestCase {
 		a.dependsUpon(b);
 		b.dependsUpon(a);
 						
-		List aCycles = new ArrayList();
+		List<JavaPackage> aCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, a.containsCycle());
 		assertEquals(true, a.collectAllCycles(aCycles));
 		assertListEquals(aCycles, new String[] {"A", "B", "A"});	
 	
-		List bCycles = new ArrayList();
+		List<JavaPackage> bCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, b.containsCycle());
 		assertEquals(true, b.collectAllCycles(bCycles));
 		assertListEquals(bCycles, new String[] {"B", "A", "B"});	
@@ -62,17 +62,17 @@ public class CollectAllCyclesTest extends JDependTestCase {
 		c.dependsUpon(a);
 		
 				
-		List aCycles = new ArrayList();
+		List<JavaPackage> aCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, a.containsCycle());
 		assertEquals(true, a.collectAllCycles(aCycles));
 		assertListEquals(aCycles, new String[] {"A", "B", "C", "A"});	
 		
-		List bCycles = new ArrayList();
+		List<JavaPackage> bCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, b.containsCycle());
 		assertEquals(true, b.collectAllCycles(bCycles));
 		assertListEquals(bCycles, new String[] {"B", "C", "A", "B"});
 		
-		List cCycles = new ArrayList();
+		List<JavaPackage> cCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, c.containsCycle());
 		assertEquals(true, c.collectAllCycles(cCycles));
 		assertListEquals(cCycles, new String[] {"C", "A", "B", "C"});
@@ -88,17 +88,17 @@ public class CollectAllCyclesTest extends JDependTestCase {
 		b.dependsUpon(c);
 		c.dependsUpon(b);
 		
-		List aCycles = new ArrayList();
+		List<JavaPackage> aCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, a.containsCycle());
 		assertEquals(true, a.collectAllCycles(aCycles));
 		assertListEquals(aCycles, new String[] {"A", "B", "C", "B"});
 	
-		List bCycles = new ArrayList();
+		List<JavaPackage> bCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, b.containsCycle());
 		assertEquals(true, b.collectAllCycles(bCycles));
 		assertListEquals(bCycles, new String[] {"B", "C", "B"});
 		
-		List cCycles = new ArrayList();
+		List<JavaPackage> cCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, c.containsCycle());
 		assertEquals(true, c.collectAllCycles(cCycles));
 		assertListEquals(cCycles, new String[] {"C", "B", "C"});
@@ -116,17 +116,17 @@ public class CollectAllCyclesTest extends JDependTestCase {
 		a.dependsUpon(c);
 		c.dependsUpon(a);
 						
-		List aCycles = new ArrayList();
+		List<JavaPackage> aCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, a.containsCycle());
 		assertEquals(true, a.collectAllCycles(aCycles));
 		assertListEquals(aCycles, new String[] {"A", "B", "A", "C", "A"});	
 	
-		List bCycles = new ArrayList();
+		List<JavaPackage> bCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, b.containsCycle());
 		assertEquals(true, b.collectAllCycles(bCycles));
 		assertListEquals(bCycles, new String[] {"B", "A", "B", "C", "A"});	
 		
-		List cCycles = new ArrayList();
+		List<JavaPackage> cCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, c.containsCycle());
 		assertEquals(true, c.collectAllCycles(cCycles));
 		assertListEquals(cCycles, new String[] {"C", "A", "B", "A", "C"});
@@ -148,38 +148,38 @@ public class CollectAllCyclesTest extends JDependTestCase {
 		d.dependsUpon(e);
 		e.dependsUpon(a);
 				
-		List aCycles = new ArrayList();
+		List<JavaPackage> aCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, a.containsCycle());
 		assertEquals(true, a.collectAllCycles(aCycles));
 		assertListEquals(aCycles, new String[] {"A", "B", "C", "A", "D", "E", "A"});	
 		
-		List bCycles = new ArrayList();
+		List<JavaPackage> bCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, b.containsCycle());
 		assertEquals(true, b.collectAllCycles(bCycles));
 		assertListEquals(bCycles, new String[] {"B", "C", "A", "B", "D", "E", "A"});
 		
-		List cCycles = new ArrayList();
+		List<JavaPackage> cCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, c.containsCycle());
 		assertEquals(true, c.collectAllCycles(cCycles));
 		assertListEquals(cCycles, new String[] {"C", "A", "B", "C", "D", "E", "A"});
 		
-		List dCycles = new ArrayList();
+		List<JavaPackage> dCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, d.containsCycle());
 		assertEquals(true, d.collectAllCycles(dCycles));
 		assertListEquals(dCycles, new String[] {"D", "E", "A", "B", "C", "A" , "D"});
 		
-		List eCycles = new ArrayList();
+		List<JavaPackage> eCycles = new ArrayList<JavaPackage>();
 		assertEquals(true, e.containsCycle());
 		assertEquals(true, e.collectAllCycles(eCycles));
 		assertListEquals(eCycles, new String[] {"E", "A", "B", "C", "A", "D", "E"});
 	}
 	
-	protected void assertListEquals(List list, String names[]) {
+	protected void assertListEquals(List<JavaPackage> list, String names[]) {
 	
 		assertEquals(names.length, list.size());
 		
 		for (int i=0; i < names.length; i++) {
-			assertEquals(names[i], ((JavaPackage)list.get(i)).getName());
+			assertEquals(names[i], list.get(i).getName());
 		}
 	}
 }

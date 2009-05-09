@@ -1,9 +1,12 @@
 package jdepend.swingui;
 
 import java.text.NumberFormat;
-import java.util.*;
-
-import jdepend.framework.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import jdepend.framework.JavaPackage;
+import jdepend.framework.PackageComparator;
 
 /**
  * The <code>PackageNode</code> class defines the default behavior for tree
@@ -19,7 +22,7 @@ public abstract class PackageNode {
 
     private JavaPackage jPackage;
 
-    private ArrayList children;
+    private List<PackageNode> children;
 
     private static NumberFormat formatter;
     static {
@@ -89,7 +92,7 @@ public abstract class PackageNode {
      * 
      * @return Collection of coupled packages.
      */
-    protected abstract Collection getCoupledPackages();
+    protected abstract Collection<JavaPackage> getCoupledPackages();
 
     /**
      * Indicates whether the specified package should be displayed as a child of
@@ -106,21 +109,18 @@ public abstract class PackageNode {
     /**
      * Returns the child package nodes of this node.
      * 
-     * @return Collection of child package nodes.
+     * @return List of child package nodes.
      */
-    public ArrayList getChildren() {
+    public List<PackageNode> getChildren() {
 
         if (children == null) {
 
-            children = new ArrayList();
-            ArrayList packages = new ArrayList(getCoupledPackages());
-            Collections.sort(packages, new PackageComparator(PackageComparator
-                    .byName()));
-            Iterator i = packages.iterator();
-            while (i.hasNext()) {
-                JavaPackage jPackage = (JavaPackage) i.next();
-                if (isChild(jPackage)) {
-                    PackageNode childNode = makeNode(this, jPackage);
+            children = new ArrayList<PackageNode>();
+            ArrayList<JavaPackage> packages = new ArrayList<JavaPackage>(getCoupledPackages());
+            Collections.sort(packages, new PackageComparator(PackageComparator.byName()));
+            for (JavaPackage pkg : packages) {
+                if (isChild(pkg)) {
+                    PackageNode childNode = makeNode(this, pkg);
                     children.add(childNode);
                 }
             }
@@ -135,22 +135,21 @@ public abstract class PackageNode {
      * @return Metrics string.
      */
     public String toMetricsString() {
-        StringBuffer label = new StringBuffer();
-        label.append(getPackage().getName());
-        label.append("  (");
-        label.append("CC: " + getPackage().getConcreteClassCount() + "  ");
-        label.append("AC: " + getPackage().getAbstractClassCount() + "  ");
-        label.append("Ca: " + getPackage().afferentCoupling() + "  ");
-        label.append("Ce: " + getPackage().efferentCoupling() + "  ");
-        label.append("A: " + format(getPackage().abstractness()) + "  ");
-        label.append("I: " + format(getPackage().instability()) + "  ");
-        label.append("D: " + format(getPackage().distance()) + "  ");
-        label.append("V: " + getPackage().getVolatility());
+        StringBuffer label = new StringBuffer(83);
+        label.append(getPackage().getName())
+             .append("  (CC: ").append(getPackage().getConcreteClassCount())
+             .append("  AC: ").append(getPackage().getAbstractClassCount())
+             .append("  Ca: ").append(getPackage().afferentCoupling())
+             .append("  Ce: ").append(getPackage().efferentCoupling())
+             .append("  A: ").append(format(getPackage().abstractness()))
+             .append("  I: ").append(format(getPackage().instability()))
+             .append("  D: ").append(format(getPackage().distance()))
+             .append("  V: ").append(getPackage().getVolatility());
         if (getPackage().containsCycle()) {
             label.append(" Cyclic");
         }
 
-        label.append(")");
+        label.append(')');
 
         return label.toString();
     }
@@ -161,6 +160,7 @@ public abstract class PackageNode {
      * 
      * @return Node label.
      */
+    @Override
     public String toString() {
 
         if (getParent().getParent() == null) {

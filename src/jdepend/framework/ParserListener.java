@@ -19,6 +19,6 @@ public interface ParserListener {
      * 
      * @param parsedClass Parsed Java class.
      */
-    public void onParsedJavaClass(JavaClass parsedClass);
+    void onParsedJavaClass(JavaClass parsedClass);
 
 }

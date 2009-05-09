@@ -1,8 +1,7 @@
 package jdepend.swingui;
 
-import java.util.*;
-
-import jdepend.framework.*;
+import java.util.Collection;
+import jdepend.framework.JavaPackage;
 
 /**
  * The <code>AfferentNode</code> class is a <code>PackageNode</code> for an
@@ -43,7 +42,7 @@ public class AfferentNode extends PackageNode {
      * 
      * @return Collection of coupled packages.
      */
-    protected Collection getCoupledPackages() {
+    protected Collection<JavaPackage> getCoupledPackages() {
         return getPackage().getAfferents();
     }
 
@@ -53,6 +52,7 @@ public class AfferentNode extends PackageNode {
      * 
      * @return Node label.
      */
+    @Override
     public String toString() {
         if (getParent() == null) {
             return "Used By - Afferent Dependencies" + " ("

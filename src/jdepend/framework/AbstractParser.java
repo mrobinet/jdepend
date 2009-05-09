@@ -1,7 +1,9 @@
 package jdepend.framework;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The <code>AbstractParser</code> class is the base class 
@@ -14,10 +16,9 @@ import java.util.*;
 
 public abstract class AbstractParser {
 
-    private ArrayList parseListeners;
+    private List<ParserListener> parseListeners;
     private PackageFilter filter;
-    public static boolean DEBUG = false;
-
+    public static boolean debugFlag = false;
 
     public AbstractParser() {
         this(new PackageFilter());
@@ -25,7 +26,7 @@ public abstract class AbstractParser {
 
     public AbstractParser(PackageFilter filter) {
         setFilter(filter);
-        parseListeners = new ArrayList();
+        parseListeners = new ArrayList<ParserListener>();
     }
 
     public void addParseListener(ParserListener listener) {
@@ -35,6 +36,9 @@ public abstract class AbstractParser {
     /**
      * Registered parser listeners are informed that the resulting
      * <code>JavaClass</code> was parsed.
+     * @param is input stream
+     * @return parsed Java class
+     * @throws IOException if I/O errors happen while parsing the class
      */
     public abstract JavaClass parse(InputStream is) throws IOException;
 
@@ -45,8 +49,8 @@ public abstract class AbstractParser {
      * @param jClass Parsed Java class.
      */
     protected void onParsedJavaClass(JavaClass jClass) {
-        for (Iterator i = parseListeners.iterator(); i.hasNext();) {
-            ((ParserListener) i.next()).onParsedJavaClass(jClass);
+        for (ParserListener listener : parseListeners) {
+            listener.onParsedJavaClass(jClass);
         }
     }
 
@@ -62,7 +66,7 @@ public abstract class AbstractParser {
     }
 
     protected void debug(String message) {
-        if (DEBUG) {
+        if (debugFlag) {
             System.err.println(message);
         }
     }

@@ -1,7 +1,11 @@
 package jdepend.framework;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * The <code>FileManager</code> class is responsible for extracting 
@@ -14,12 +18,12 @@ import java.util.*;
 
 public class FileManager {
 
-    private ArrayList directories;
+    private final List<File> directories;
     private boolean acceptInnerClasses;
 
 
     public FileManager() {
-        directories = new ArrayList();
+        directories = new ArrayList<File>();
         acceptInnerClasses = true;
     }
 
@@ -58,47 +62,38 @@ public class FileManager {
     public boolean acceptClassFileName(String name) {
 
         if (!acceptInnerClasses) {
-            if (name.toLowerCase().indexOf("$") > 0) {
+            if (name.toLowerCase().indexOf('$') > 0) {
                 return false;
             }
         }
 
-        if (!name.toLowerCase().endsWith(".class")) {
-            return false;
-        }
-
-        return true;
+        return name.toLowerCase().endsWith(".class");
     }
 
     public boolean acceptJarFile(File file) {
         return isJar(file) || isZip(file) || isWar(file);
     }
 
-    public Collection extractFiles() {
+    public Collection<File> extractFiles() {
 
-        Collection files = new TreeSet();
+        Collection<File> files = new TreeSet<File>();
 
-        for (Iterator i = directories.iterator(); i.hasNext();) {
-            File directory = (File)i.next();
+        for (File directory : directories) {
             collectFiles(directory, files);
         }
 
         return files;
     }
 
-    private void collectFiles(File directory, Collection files) {
+    private void collectFiles(File directory, Collection<File> files) {
 
         if (directory.isFile()) {
-
             addFile(directory, files);
-
         } else {
-
             String[] directoryFiles = directory.list();
 
-            for (int i = 0; i < directoryFiles.length; i++) {
-
-                File file = new File(directory, directoryFiles[i]);
+            for (String dirFile : directoryFiles) {
+                File file = new File(directory, dirFile);
                 if (acceptFile(file)) {
                     addFile(file, files);
                 } else if (file.isDirectory()) {
@@ -108,7 +103,7 @@ public class FileManager {
         }
     }
 
-    private void addFile(File f, Collection files) {
+    private void addFile(File f, Collection<File> files) {
         if (!files.contains(f)) {
             files.add(f);
         }

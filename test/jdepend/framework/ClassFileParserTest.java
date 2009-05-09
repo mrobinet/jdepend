@@ -18,12 +18,14 @@ public class ClassFileParserTest extends JDependTestCase {
         super(name);
     }
 
+    @Override
     protected void setUp() {
         super.setUp();
-        PackageFilter filter = new PackageFilter(new ArrayList());
+        PackageFilter filter = new PackageFilter(new ArrayList<String>());
         parser = new ClassFileParser(filter);
     }
 
+    @Override
     protected void tearDown() {
         super.tearDown();
     }
@@ -56,7 +58,7 @@ public class ClassFileParserTest extends JDependTestCase {
 
         assertEquals("ExampleInterface.java", clazz.getSourceFile());
 
-        Collection imports = clazz.getImportedPackages();
+        Collection<JavaPackage> imports = clazz.getImportedPackages();
         assertEquals(6, imports.size());
 
         assertTrue(imports.contains(new JavaPackage("java.math")));
@@ -80,7 +82,7 @@ public class ClassFileParserTest extends JDependTestCase {
 
         assertEquals("ExampleAbstractClass.java", clazz.getSourceFile());
 
-        Collection imports = clazz.getImportedPackages();
+        Collection<JavaPackage> imports = clazz.getImportedPackages();
         assertEquals(7, imports.size());
 
         assertTrue(imports.contains(new JavaPackage("java.math")));
@@ -105,7 +107,7 @@ public class ClassFileParserTest extends JDependTestCase {
 
         assertEquals("ExampleConcreteClass.java", clazz.getSourceFile());
 
-        Collection imports = clazz.getImportedPackages();
+        Collection<JavaPackage> imports = clazz.getImportedPackages();
         assertEquals(19, imports.size());
 
         assertTrue(imports.contains(new JavaPackage("java.net")));
@@ -145,7 +147,7 @@ public class ClassFileParserTest extends JDependTestCase {
 
         assertEquals("ExampleConcreteClass.java", clazz.getSourceFile());
 
-        Collection imports = clazz.getImportedPackages();
+        Collection<JavaPackage> imports = clazz.getImportedPackages();
         assertEquals(1, imports.size());
 
         assertTrue(imports.contains(new JavaPackage("java.lang")));
@@ -165,7 +167,7 @@ public class ClassFileParserTest extends JDependTestCase {
 
         assertEquals("ExampleConcreteClass.java", clazz.getSourceFile());
 
-        Collection imports = clazz.getImportedPackages();
+        Collection<JavaPackage> imports = clazz.getImportedPackages();
         assertEquals(1, imports.size());
 
         assertTrue(imports.contains(new JavaPackage("java.lang")));

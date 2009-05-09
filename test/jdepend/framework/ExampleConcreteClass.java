@@ -5,9 +5,6 @@ import java.math.BigDecimal;
 import jdepend.framework.p1.ExampleInnerAnnotation;
 import jdepend.framework.p2.ExampleEnum;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * @author <b>Mike Clark</b>
@@ -17,11 +14,14 @@ import org.junit.runners.Suite.SuiteClasses;
 @org.junit.runners.Suite.SuiteClasses(java.applet.AppletStub.class)
 public class ExampleConcreteClass extends ExampleAbstractClass {
 
+    private static final long serialVersionUID = -1;
+    
     private java.sql.Statement[] statements;
 
     public ExampleConcreteClass() {
     }
 
+    @Override
     public void a() {
         try {
             java.net.URL url = new java.net.URL("http://www.clarkware.com");
@@ -29,10 +29,12 @@ public class ExampleConcreteClass extends ExampleAbstractClass {
         }
     }
 
+    @Override
     public java.util.Vector b(String[] s, java.text.NumberFormat nf) {
         return null;
     }
 
+    @Override
     public void c(BigDecimal bd, byte[] bytes) throws java.rmi.RemoteException {
         int[] a = { 1, 2, 3};
         int[][] b = { { 1, 2}, { 3, 4}, { 5, 6}};

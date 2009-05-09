@@ -41,7 +41,7 @@ public class PropertyConfiguratorTest extends JDependTestCase {
         assertFalse(c.getAnalyzeInnerClasses());
     }
 
-    private void assertFiltersExist(Collection filters) {
+    private void assertFiltersExist(Collection<String> filters) {
         assertEquals(5, filters.size());
         assertTrue(filters.contains("java.*"));
         assertTrue(filters.contains("javax.*"));

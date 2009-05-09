@@ -1,9 +1,15 @@
 package jdepend.framework;
 
-import java.io.*;
-import java.util.*;
-import java.util.jar.*;
-import java.util.zip.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
  * The <code>JavaClassBuilder</code> builds <code>JavaClass</code> 
@@ -41,7 +47,7 @@ public class JavaClassBuilder {
         };
 
         JavaClassBuilder builder = new JavaClassBuilder(counter, fileManager);
-        Collection classes = builder.build();
+        Collection<JavaClass> classes = builder.build();
         return classes.size();
     }
 
@@ -50,13 +56,11 @@ public class JavaClassBuilder {
      * 
      * @return Collection of <code>JavaClass</code> instances.
      */
-    public Collection build() {
+    public Collection<JavaClass> build() {
 
-        Collection classes = new ArrayList();
+        Collection<JavaClass> classes = new ArrayList<JavaClass>();
 
-        for (Iterator i = fileManager.extractFiles().iterator(); i.hasNext();) {
-
-            File nextFile = (File)i.next();
+        for (File nextFile : fileManager.extractFiles()) {
 
             try {
 
@@ -76,15 +80,16 @@ public class JavaClassBuilder {
      * 
      * @param file Class or Jar file.
      * @return Collection of <code>JavaClass</code> instances.
+     * @throws IOException if I/O error occurs during parsing
      */
-    public Collection buildClasses(File file) throws IOException {
+    public Collection<JavaClass> buildClasses(File file) throws IOException {
 
         if (fileManager.acceptClassFile(file)) {
             InputStream is = null;
             try {
                 is = new BufferedInputStream(new FileInputStream(file));
                 JavaClass parsedClass = parser.parse(is);
-                Collection javaClasses = new ArrayList();
+                Collection<JavaClass> javaClasses = new ArrayList<JavaClass>();
                 javaClasses.add(parsedClass);
                 return javaClasses;
             } finally {
@@ -95,7 +100,7 @@ public class JavaClassBuilder {
         } else if (fileManager.acceptJarFile(file)) {
 
             JarFile jarFile = new JarFile(file);
-            Collection result = buildClasses(jarFile);
+            Collection<JavaClass> result = buildClasses(jarFile);
             jarFile.close();
             return result;
 
@@ -112,10 +117,11 @@ public class JavaClassBuilder {
      * 
      * @param file Jar, war, or zip file.
      * @return Collection of <code>JavaClass</code> instances.
+     * @throws IOException if I/O error occurs during parsing
      */
-    public Collection buildClasses(JarFile file) throws IOException {
+    public Collection<JavaClass> buildClasses(JarFile file) throws IOException {
 
-        Collection javaClasses = new ArrayList();
+        Collection<JavaClass> javaClasses = new ArrayList<JavaClass>();
 
         Enumeration entries = file.entries();
         while (entries.hasMoreElements()) {
@@ -127,7 +133,9 @@ public class JavaClassBuilder {
                     JavaClass jc = parser.parse(is);
                     javaClasses.add(jc);
                 } finally {
-                    is.close();
+                    if (is != null) {
+                        is.close();
+                    }
                 }
             }
         }

@@ -1,7 +1,11 @@
 package jdepend.framework;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * The <code>ClassFileParser</code> class is responsible for 
@@ -73,6 +77,9 @@ public class ClassFileParser extends AbstractParser {
     /**
      * Registered parser listeners are informed that the resulting
      * <code>JavaClass</code> was parsed.
+     * @param classFile class file to be parsed
+     * @return the Java class
+     * @throws IOException if I/O exception occurs while parsing
      */
     public JavaClass parse(File classFile) throws IOException {
 
@@ -80,18 +87,18 @@ public class ClassFileParser extends AbstractParser {
 
         debug("\nParsing " + fileName + "...");
 
-        InputStream in = null;
+        InputStream inputStream = null;
 
         try {
 
-            in = new BufferedInputStream(new FileInputStream(classFile));
+            inputStream = new BufferedInputStream(new FileInputStream(classFile));
 
-            return parse(in);
+            return parse(inputStream);
 
         } finally {
-            if (in != null) {
+            if (inputStream != null) {
                 try {
-                    in.close();
+                    inputStream.close();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
@@ -107,10 +114,10 @@ public class ClassFileParser extends AbstractParser {
 
         in = new DataInputStream(is);
 
-        int magic = parseMagic();
+        parseMagic();
 
-        int minorVersion = parseMinorVersion();
-        int majorVersion = parseMajorVersion();
+        parseMinorVersion();
+        parseMajorVersion();
 
         constantPool = parseConstantPool();
 
@@ -180,10 +187,10 @@ public class ClassFileParser extends AbstractParser {
     private void parseAccessFlags() throws IOException {
         int accessFlags = in.readUnsignedShort();
 
-        boolean isAbstract = ((accessFlags & ACC_ABSTRACT) != 0);
+        boolean isAbst = ((accessFlags & ACC_ABSTRACT) != 0);
         boolean isInterface = ((accessFlags & ACC_INTERFACE) != 0);
 
-        this.isAbstract = isAbstract || isInterface;
+        this.isAbstract = isAbst || isInterface;
         jClass.isAbstract(this.isAbstract);
 
         debug("Parser: abstract = " + this.isAbstract);
@@ -191,74 +198,74 @@ public class ClassFileParser extends AbstractParser {
 
     private String parseClassName() throws IOException {
         int entryIndex = in.readUnsignedShort();
-        String className = getClassConstantName(entryIndex);
-        jClass.setName(className);
-        jClass.setPackageName(getPackageName(className));
+        String clazzName = getClassConstantName(entryIndex);
+        jClass.setName(clazzName);
+        jClass.setPackageName(getPackageName(clazzName));
 
-        debug("Parser: class name = " + className);
-        debug("Parser: package name = " + getPackageName(className));
+        debug("Parser: class name = " + clazzName);
+        debug("Parser: package name = " + getPackageName(clazzName));
         
-        return className;
+        return clazzName;
     }
 
     private String parseSuperClassName() throws IOException {
         int entryIndex = in.readUnsignedShort();
-        String superClassName = getClassConstantName(entryIndex);
-        addImport(getPackageName(superClassName));
+        String superClazzName = getClassConstantName(entryIndex);
+        addImport(getPackageName(superClazzName));
 
-        debug("Parser: super class name = " + superClassName);
+        debug("Parser: super class name = " + superClazzName);
         
-        return superClassName;
+        return superClazzName;
     }
 
     private String[] parseInterfaces() throws IOException {
         int interfacesCount = in.readUnsignedShort();
-        String[] interfaceNames = new String[interfacesCount];
+        String[] ifcNames = new String[interfacesCount];
         for (int i = 0; i < interfacesCount; i++) {
             int entryIndex = in.readUnsignedShort();
-            interfaceNames[i] = getClassConstantName(entryIndex);
-            addImport(getPackageName(interfaceNames[i]));
+            ifcNames[i] = getClassConstantName(entryIndex);
+            addImport(getPackageName(ifcNames[i]));
 
-            debug("Parser: interface = " + interfaceNames[i]);
+            debug("Parser: interface = " + ifcNames[i]);
         }
 
-        return interfaceNames;
+        return ifcNames;
     }
 
     private FieldOrMethodInfo[] parseFields() throws IOException {
         int fieldsCount = in.readUnsignedShort();
-        FieldOrMethodInfo[] fields = new FieldOrMethodInfo[fieldsCount];
+        FieldOrMethodInfo[] infos = new FieldOrMethodInfo[fieldsCount];
         for (int i = 0; i < fieldsCount; i++) {
-            fields[i] = parseFieldOrMethodInfo();
-            String descriptor = toUTF8(fields[i].getDescriptorIndex());
+            infos[i] = parseFieldOrMethodInfo();
+            String descriptor = toUTF8(infos[i].getDescriptorIndex());
             debug("Parser: field descriptor = " + descriptor);
             String[] types = descriptorToTypes(descriptor);
-            for (int t = 0; t < types.length; t++) {
-                addImport(getPackageName(types[t]));
-                debug("Parser: field type = " + types[t]);
+            for (String type : types) {
+                addImport(getPackageName(type));
+                debug("Parser: field type = " + type);
             }
         }
 
-        return fields;
+        return infos;
     }
 
     private FieldOrMethodInfo[] parseMethods() throws IOException {
         int methodsCount = in.readUnsignedShort();
-        FieldOrMethodInfo[] methods = new FieldOrMethodInfo[methodsCount];
+        FieldOrMethodInfo[] infos = new FieldOrMethodInfo[methodsCount];
         for (int i = 0; i < methodsCount; i++) {
-            methods[i] = parseFieldOrMethodInfo();
-            String descriptor = toUTF8(methods[i].getDescriptorIndex());
+            infos[i] = parseFieldOrMethodInfo();
+            String descriptor = toUTF8(infos[i].getDescriptorIndex());
             debug("Parser: method descriptor = " + descriptor);
             String[] types = descriptorToTypes(descriptor);
-            for (int t = 0; t < types.length; t++) {
-                if (types[t].length() > 0) {
-                    addImport(getPackageName(types[t]));
-                    debug("Parser: method type = " + types[t]);
+            for (String type : types) {
+                if (type.length() > 0) {
+                    addImport(getPackageName(type));
+                    debug("Parser: method type = " + type);
                 }
             }
         }
 
-        return methods;
+        return infos;
     }
 
     private Constant parseNextConstant() throws IOException {
@@ -269,35 +276,35 @@ public class ClassFileParser extends AbstractParser {
 
         switch (tag) {
 
-        case (ClassFileParser.CONSTANT_CLASS):
-        case (ClassFileParser.CONSTANT_STRING):
-        case (ClassFileParser.CONSTANT_METHOD_TYPE):
+        case ClassFileParser.CONSTANT_CLASS:
+        case ClassFileParser.CONSTANT_STRING:
+        case ClassFileParser.CONSTANT_METHOD_TYPE:
             result = new Constant(tag, in.readUnsignedShort());
             break;
-        case (ClassFileParser.CONSTANT_FIELD):
-        case (ClassFileParser.CONSTANT_METHOD):
-        case (ClassFileParser.CONSTANT_INTERFACEMETHOD):
-        case (ClassFileParser.CONSTANT_NAMEANDTYPE):
-        case (ClassFileParser.CONSTANT_INVOKEDYNAMIC):
+        case ClassFileParser.CONSTANT_FIELD:
+        case ClassFileParser.CONSTANT_METHOD:
+        case ClassFileParser.CONSTANT_INTERFACEMETHOD:
+        case ClassFileParser.CONSTANT_NAMEANDTYPE:
+        case ClassFileParser.CONSTANT_INVOKEDYNAMIC:
             result = new Constant(tag, in.readUnsignedShort(), in
                     .readUnsignedShort());
             break;
-        case (ClassFileParser.CONSTANT_INTEGER):
-            result = new Constant(tag, new Integer(in.readInt()));
+        case ClassFileParser.CONSTANT_INTEGER:
+            result = new Constant(tag, in.readInt());
             break;
-        case (ClassFileParser.CONSTANT_FLOAT):
-            result = new Constant(tag, new Float(in.readFloat()));
+        case ClassFileParser.CONSTANT_FLOAT:
+            result = new Constant(tag, in.readFloat());
             break;
-        case (ClassFileParser.CONSTANT_LONG):
-            result = new Constant(tag, new Long(in.readLong()));
+        case ClassFileParser.CONSTANT_LONG:
+            result = new Constant(tag, in.readLong());
             break;
-        case (ClassFileParser.CONSTANT_DOUBLE):
-            result = new Constant(tag, new Double(in.readDouble()));
+        case ClassFileParser.CONSTANT_DOUBLE:
+            result = new Constant(tag, in.readDouble());
             break;
-        case (ClassFileParser.CONSTANT_UTF8):
+        case ClassFileParser.CONSTANT_UTF8:
             result = new Constant(tag, in.readUTF());
             break;
-        case (ClassFileParser.CONSTANT_METHOD_HANDLE):
+        case ClassFileParser.CONSTANT_METHOD_HANDLE:
             result = new Constant(tag, in.readByte(), in.readUnsignedShort());
             break;
         default:
@@ -317,7 +324,7 @@ public class ClassFileParser extends AbstractParser {
         for (int a = 0; a < attributesCount; a++) {
         	AttributeInfo attribute = parseAttribute();
         	if ("RuntimeVisibleAnnotations".equals(attribute.name)) {
-        		result._runtimeVisibleAnnotations = attribute;
+        		result.runtimeVisibleAnnotations = attribute;
         	}
         }
 
@@ -332,16 +339,14 @@ public class ClassFileParser extends AbstractParser {
             attributes[i] = parseAttribute();
 
             // Section 4.7.7 of VM Spec - Class File Format
-            if (attributes[i].getName() != null) {
-                if (attributes[i].getName().equals("SourceFile")) {
-                    byte[] b = attributes[i].getValue();
-                    int b0 = b[0] < 0 ? b[0] + 256 : b[0];
-                    int b1 = b[1] < 0 ? b[1] + 256 : b[1];
-                    int pe = b0 * 256 + b1;
+            if (attributes[i].getName() != null && attributes[i].getName().equals("SourceFile")) {
+                byte[] b = attributes[i].getValue();
+                int b0 = b[0] < 0 ? b[0] + 256 : b[0];
+                int b1 = b[1] < 0 ? b[1] + 256 : b[1];
+                int pe = b0 * 256 + b1;
 
-                    String descriptor = toUTF8(pe);
-                    jClass.setSourceFile(descriptor);
-                }
+                String descriptor = toUTF8(pe);
+                jClass.setSourceFile(descriptor);
             }
         }
     }
@@ -396,13 +401,13 @@ public class ClassFileParser extends AbstractParser {
             }
         }
         for (int j = 1; j < fields.length; j++) {
-        	if (fields[j]._runtimeVisibleAnnotations != null) {
-        		addAnnotationReferences(fields[j]._runtimeVisibleAnnotations);
+        	if (fields[j].runtimeVisibleAnnotations != null) {
+        		addAnnotationReferences(fields[j].runtimeVisibleAnnotations);
         	}
         }
         for (int j = 1; j < methods.length; j++) {
-        	if (methods[j]._runtimeVisibleAnnotations != null) {
-        		addAnnotationReferences(methods[j]._runtimeVisibleAnnotations);
+        	if (methods[j].runtimeVisibleAnnotations != null) {
+        		addAnnotationReferences(methods[j].runtimeVisibleAnnotations);
         	}
         }
     }
@@ -509,19 +514,20 @@ public class ClassFileParser extends AbstractParser {
     }
 
     private String getPackageName(String s) {
-        if ((s.length() > 0) && (s.charAt(0) == '[')) {
-            String types[] = descriptorToTypes(s);
+        String sVal = s;
+        if ((sVal.length() > 0) && (sVal.charAt(0) == '[')) {
+            String types[] = descriptorToTypes(sVal);
             if (types.length == 0) {
                 return null; // primitives
             }
 
-            s = types[0];
+            sVal = types[0];
         }
 
-        s = slashesToDots(s);
-        int index = s.lastIndexOf(".");
+        sVal = slashesToDots(sVal);
+        int index = sVal.lastIndexOf('.');
         if (index > 0) {
-            return s.substring(0, index);
+            return sVal.substring(0, index);
         }
 
         return "Default";
@@ -555,62 +561,63 @@ public class ClassFileParser extends AbstractParser {
 
     class Constant {
 
-        private byte _tag;
+        private byte tag;
 
-        private int _nameIndex;
+        private int nameIndex;
 
-        private int _typeIndex;
+        private int typeIndex;
 
-        private Object _value;
+        private Object value;
 
-        Constant(byte tag, int nameIndex) {
-            this(tag, nameIndex, -1);
+        Constant(byte t, int nameIndex) {
+            this(t, nameIndex, -1);
         }
 
-        Constant(byte tag, Object value) {
-            this(tag, -1, -1);
-            _value = value;
+        Constant(byte t, Object val) {
+            this(t, -1, -1);
+            value = val;
         }
 
-        Constant(byte tag, int nameIndex, int typeIndex) {
-            _tag = tag;
-            _nameIndex = nameIndex;
-            _typeIndex = typeIndex;
-            _value = null;
+        Constant(byte t, int nameIdx, int typeIdx) {
+            tag = t;
+            nameIndex = nameIdx;
+            typeIndex = typeIdx;
+            value = null;
         }
 
         byte getTag() {
-            return _tag;
+            return tag;
         }
 
         int getNameIndex() {
-            return _nameIndex;
+            return nameIndex;
         }
 
         int getTypeIndex() {
-            return _typeIndex;
+            return typeIndex;
         }
 
         Object getValue() {
-            return _value;
+            return value;
         }
 
+        @Override
         public String toString() {
 
-            StringBuffer s = new StringBuffer("");
+            StringBuilder s = new StringBuilder(51);
 
-            s.append("tag: " + getTag());
+            s.append("tag: ").append(getTag());
 
             if (getNameIndex() > -1) {
-                s.append(" nameIndex: " + getNameIndex());
+                s.append(" nameIndex: ").append(getNameIndex());
             }
 
             if (getTypeIndex() > -1) {
-                s.append(" typeIndex: " + getTypeIndex());
+                s.append(" typeIndex: ").append(getTypeIndex());
             }
 
             if (getValue() != null) {
-                s.append(" value: " + getValue());
+                s.append(" value: ").append(getValue());
             }
 
             return s.toString();
@@ -619,47 +626,46 @@ public class ClassFileParser extends AbstractParser {
 
     class FieldOrMethodInfo {
 
-        private int _accessFlags;
+        private final int accessFlags;
 
-        private int _nameIndex;
+        private final int nameIndex;
 
-        private int _descriptorIndex;
+        private final int descriptorIndex;
         
-        private AttributeInfo _runtimeVisibleAnnotations;
+        private AttributeInfo runtimeVisibleAnnotations;
 
-        FieldOrMethodInfo(int accessFlags, int nameIndex, int descriptorIndex) {
+        FieldOrMethodInfo(int accessFlgs, int nameIdx, int descriptorIdx) {
 
-            _accessFlags = accessFlags;
-            _nameIndex = nameIndex;
-            _descriptorIndex = descriptorIndex;
+            accessFlags = accessFlgs;
+            nameIndex = nameIdx;
+            descriptorIndex = descriptorIdx;
         }
 
-        int accessFlags() {
-            return _accessFlags;
+        int getAccessFlags() {
+            return accessFlags;
         }
 
         int getNameIndex() {
-            return _nameIndex;
+            return nameIndex;
         }
 
         int getDescriptorIndex() {
-            return _descriptorIndex;
+            return descriptorIndex;
         }
 
+        @Override
         public String toString() {
-            StringBuffer s = new StringBuffer("");
+            StringBuilder s = new StringBuilder(83);
 
             try {
 
-                s.append("\n    name (#" + getNameIndex() + ") = "
-                        + toUTF8(getNameIndex()));
-
-                s.append("\n    signature (#" + getDescriptorIndex() + ") = "
-                        + toUTF8(getDescriptorIndex()));
+                s.append("\n    name (#").append(getNameIndex()).append(") = ").append(toUTF8(getNameIndex()))
+                 .append("\n    signature (#").append(getDescriptorIndex()).append(") = ")
+                        .append(toUTF8(getDescriptorIndex()));
 
                 String[] types = descriptorToTypes(toUTF8(getDescriptorIndex()));
-                for (int t = 0; t < types.length; t++) {
-                    s.append("\n        type = " + types[t]);
+                for (String type : types) {
+                    s.append("\n        type = ").append(type);
                 }
 
             } catch (Exception e) {
@@ -698,47 +704,45 @@ public class ClassFileParser extends AbstractParser {
      * 
      * @return String representation.
      */
+    @Override
     public String toString() {
 
-        StringBuffer s = new StringBuffer();
+        StringBuilder s = new StringBuilder(137);
 
         try {
 
-            s.append("\n" + className + ":\n");
-
-            s.append("\nConstants:\n");
+            s.append('\n').append(className).append(":\n\nConstants:\n");
             for (int i = 1; i < constantPool.length; i++) {
                 Constant entry = getConstantPoolEntry(i);
-                s.append("    " + i + ". " + entry.toString() + "\n");
+                s.append("    ").append(i).append(". ").append(entry.toString()).append('\n');
                 if (entry.getTag() == CONSTANT_DOUBLE
                         || entry.getTag() == CONSTANT_LONG) {
                     i++;
                 }
             }
 
-            s.append("\nClass Name: " + className + "\n");
-            s.append("Super Name: " + superClassName + "\n\n");
+            s.append("\nClass Name: ").append(className)
+             .append("\nSuper Name: ").append(superClassName)
+             .append("\n\n")
+             .append(interfaceNames.length).append(" interfaces\n");
 
-            s.append(interfaceNames.length + " interfaces\n");
-            for (int i = 0; i < interfaceNames.length; i++) {
-                s.append("    " + interfaceNames[i] + "\n");
+            for (String interfaceName : interfaceNames) {
+                s.append("    ").append(interfaceName).append('\n');
             }
 
-            s.append("\n" + fields.length + " fields\n");
-            for (int i = 0; i < fields.length; i++) {
-                s.append(fields[i].toString() + "\n");
+            s.append('\n').append(fields.length).append(" fields\n");
+            for (FieldOrMethodInfo field : fields) {
+                s.append(field.toString()).append('\n');
             }
 
-            s.append("\n" + methods.length + " methods\n");
-            for (int i = 0; i < methods.length; i++) {
-                s.append(methods[i].toString() + "\n");
+            s.append('\n').append(methods.length).append(" methods\n");
+            for (FieldOrMethodInfo method : methods) {
+                s.append(method.toString()).append('\n');
             }
 
             s.append("\nDependencies:\n");
-            Iterator imports = jClass.getImportedPackages().iterator();
-            while (imports.hasNext()) {
-                JavaPackage jPackage = (JavaPackage) imports.next();
-                s.append("    " + jPackage.getName() + "\n");
+            for (JavaPackage jPackage : jClass.getImportedPackages()) {
+                s.append("    ").append(jPackage.getName()).append('\n');
             }
 
         } catch (Exception e) {
@@ -750,11 +754,12 @@ public class ClassFileParser extends AbstractParser {
 
     /**
      * Test main.
+     * @param args Single argument of file path.
      */
     public static void main(String args[]) {
         try {
 
-            ClassFileParser.DEBUG = true;
+            ClassFileParser.debugFlag = true;
 
             if (args.length <= 0) {
                 System.err.println("usage: ClassFileParser <class-file>");

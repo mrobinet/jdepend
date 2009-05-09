@@ -1,10 +1,14 @@
 package jdepend.swingui;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-
+import java.awt.BorderLayout;
+import java.awt.Font;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreePath;
 import jdepend.framework.JavaPackage;
 
 /**
@@ -17,9 +21,9 @@ import jdepend.framework.JavaPackage;
 
 public class DependTree extends JPanel implements TreeSelectionListener {
 
-    private JTree tree;
+    private static final long serialVersionUID = -1;
 
-    private DependTreeModel model;
+    private JTree tree;
 
     /**
      * Constructs a <code>DependTree</code> with an empty tree model.
@@ -52,9 +56,8 @@ public class DependTree extends JPanel implements TreeSelectionListener {
      * @param model Tree model.
      */
     public void setModel(DependTreeModel model) {
-        this.model = model;
         setBorder(BorderFactory.createTitledBorder(model.getRoot().toString()));
-        getTree().setModel(this.model);
+        getTree().setModel(model);
 
     }
 
@@ -87,7 +90,7 @@ public class DependTree extends JPanel implements TreeSelectionListener {
         TreePath path = te.getNewLeadSelectionPath();
 
         if (path != null) {
-            Object o = path.getLastPathComponent();
+            path.getLastPathComponent();
         }
     }
 
@@ -97,8 +100,7 @@ public class DependTree extends JPanel implements TreeSelectionListener {
      * @return Scroll pane.
      */
     private JScrollPane createScrollPane() {
-        JScrollPane pane = new JScrollPane(getTree());
-        return pane;
+        return new JScrollPane(getTree());
     }
 
     /**
@@ -108,14 +110,14 @@ public class DependTree extends JPanel implements TreeSelectionListener {
      */
     private JTree createTree() {
 
-        JTree tree = new JTree();
-        tree.setShowsRootHandles(false);
-        tree.setFont(new Font("Dialog", Font.PLAIN, 12));
-        tree.addTreeSelectionListener(this);
-        tree.setRootVisible(false);
-        tree.setLargeModel(true);
+        JTree jTree = new JTree();
+        jTree.setShowsRootHandles(false);
+        jTree.setFont(new Font("Dialog", Font.PLAIN, 12));
+        jTree.addTreeSelectionListener(this);
+        jTree.setRootVisible(false);
+        jTree.setLargeModel(true);
 
-        return tree;
+        return jTree;
     }
 
     /*

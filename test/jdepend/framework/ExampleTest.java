@@ -3,7 +3,6 @@ package jdepend.framework;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 
 import junit.framework.TestCase;
 
@@ -87,10 +86,9 @@ public class ExampleTest extends TestCase {
         double ideal = 0.0;
         double tolerance = 1.0;
 
-        Collection packages = jdepend.analyze();
+        Collection<JavaPackage> packages = jdepend.analyze();
 
-        for (Iterator iter = packages.iterator(); iter.hasNext();) {
-            JavaPackage p = (JavaPackage)iter.next();
+        for (JavaPackage p : packages) {
             assertEquals("Distance exceeded: " + p.getName(), 
                          ideal, p.distance(), tolerance);
         }
@@ -102,7 +100,7 @@ public class ExampleTest extends TestCase {
      */
     public void testAllPackagesHaveNoCycles() {
 
-        Collection packages = jdepend.analyze();
+        Collection<JavaPackage> packages = jdepend.analyze();
 
         assertEquals("Cycles exist", false, jdepend.containsCycles());
     }
